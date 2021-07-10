@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Serge Semenov.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -45,7 +48,7 @@ namespace AsyncWaitHandle
                 throw new ArgumentNullException(nameof(waitHandles));
 
             int totalCount = 0;
-            foreach (var waitHandle in waitHandles) {
+            foreach (WaitHandle? waitHandle in waitHandles) {
                 if (waitHandle == null)
                     throw new ArgumentException($"The WaitHandle reference at index {totalCount} is NULL", nameof(waitHandles));
                 ThrowIfMutex(waitHandle);
@@ -119,7 +122,7 @@ namespace AsyncWaitHandle
         /// <param name="timeoutMs">The wait timeout in milliseconds. Set to -1 to wait indefinitely. If any handle times out this method returns False.</param>
         /// <param name="cancellationToken">The cancellation token to stop waiting. If cancellation is requested, the Task will throw <see cref="System.OperationCanceledException"/>.</param>
         /// <returns>Returns True if all handles has pulsed, otherwise False</returns>
-        public static Task<bool> WaitAllAsync(IEnumerable<WaitHandle> waitHandles, int timeoutMs, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<bool> WaitAllAsync(IEnumerable<WaitHandle> waitHandles, int timeoutMs, CancellationToken cancellationToken = default)
         {
             if (waitHandles == null)
                 throw new ArgumentNullException(nameof(waitHandles));
@@ -204,10 +207,9 @@ namespace AsyncWaitHandle
 
         private static void CancelAwaiters(WaitHandleAwaiter[] awaiters)
         {
-            for (int i = 0; i < awaiters.Length; i++) {
-                var awaiter = awaiters[i];
-                if (awaiter != null)
-                    CancelAwaiter(awaiter);
+            foreach (WaitHandleAwaiter awaiter in awaiters)
+            {
+                CancelAwaiter(awaiter);
             }
         }
 
